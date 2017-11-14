@@ -45,8 +45,6 @@ public class DProject extends JFrame
 		SP.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 
-}
-
 /*
 public class Second extends JFrame
 {
