@@ -44,7 +44,7 @@ public class DProject extends JFrame
 				contents.add(panel2);
 				setVisible(false);
 				setVisible(true);
-				
+				//
 			}
 		}
 		
