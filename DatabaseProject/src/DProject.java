@@ -1,6 +1,11 @@
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 public class DProject extends JFrame 
 {	
@@ -8,27 +13,47 @@ public class DProject extends JFrame
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	JButton next, SB;
+	JButton customers, employees, back1, back2, addCust;
 	Container contents;
-	Panel panel1, panel2;
+	Panel start, CustPan, EmpPan, NewCustPan;
+	JLabel Fname;
 	
 	public DProject()
 	{
 		contents = getContentPane();
 		contents.setLayout(new FlowLayout());
-		next = new JButton("next");
-		SB = new JButton("here");
 		
-		panel1 = new Panel();
-		panel2 = new Panel();
+		customers = new JButton("Costomers");
+		employees = new JButton("Employees");
+		back1 = new JButton("back");
+		back2 = new JButton("Back");
+		addCust = new JButton("New Customer");
 		
-		panel1.add(next);
-		contents.add(panel1);
+		Fname = new JLabel("First name");
 		
-		panel2.add(SB);
+		start = new Panel();
+		CustPan = new Panel();
+		EmpPan = new Panel();
+		NewCustPan = new Panel();
+		
+		start.add(customers);
+		start.add(employees);
+		CustPan.add(back1);
+		EmpPan.add(back2);
+		EmpPan.add(addCust);
+		NewCustPan.add(Fname);
+		
+		contents.add(start);
 		
 		ButtonHandler bh = new ButtonHandler();
-		next.addActionListener(bh);
+		
+		customers.addActionListener(bh);
+		back1.addActionListener(bh);
+		employees.addActionListener(bh);
+		back2.addActionListener(bh);
+		addCust.addActionListener(bh);
+		
+		
 		
 		setSize(500, 500);
 		setVisible(true);
@@ -38,22 +63,55 @@ public class DProject extends JFrame
 	{
 		public void actionPerformed(ActionEvent a) 
 		{
-			if(a.getSource() == next)
+			if(a.getSource() == customers)
 			{
-				contents.remove(panel1);
-				contents.add(panel2);
+				contents.remove(start);
+				contents.add(CustPan);
 				setVisible(false);
 				setVisible(true);
-				//
+			}
+			else if(a.getSource() == employees)
+			{
+				contents.remove(start);
+				contents.add(EmpPan);
+				setVisible(false);
+				setVisible(true);
+			}
+			else if(a.getSource() == back1)
+			{
+				contents.remove(CustPan);
+				contents.add(start);
+				setVisible(false);
+				setVisible(true);
+			}
+			else if(a.getSource() == back2)
+			{
+				contents.remove(EmpPan);
+				contents.add(start);
+				setVisible(false);
+				setVisible(true);
+			}
+			else if(a.getSource() == addCust)
+			{
+				contents.remove(EmpPan);
+				contents.add(NewCustPan);
+				setVisible(false);
+				setVisible(true);
 			}
 		}
 		
 	}
 	
-	public static void main(String[] args) 
+	public static void main(String[] args) throws ClassNotFoundException, SQLException
 	{
 		DProject SP = new DProject();
 		SP.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		Class.forName("com.mysql.jdbc.Driver");
+		String connectionURL= 
+				"jdbc:mysql://localhost:3306/Regal_Air?autoReconnect=true&useSSL=false";
+		Connection connection = DriverManager.getConnection(connectionURL, "root", "root");
+		Statement statement = connection.createStatement();
 	}
 
 }
