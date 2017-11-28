@@ -181,5 +181,3 @@ public class DProject extends JFrame
 		DProject SP = new DProject();
 		SP.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
-
-}
