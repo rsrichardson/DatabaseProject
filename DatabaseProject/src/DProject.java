@@ -80,7 +80,6 @@ public class DProject extends JFrame
 		member.addActionListener(bh);
 		
 		
-		
 		EmpPan.add(back2);
 		EmpPan.add(addCust);
 		NewCustPan.add(Fname);
