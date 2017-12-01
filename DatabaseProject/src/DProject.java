@@ -149,7 +149,6 @@ public class DProject extends JFrame
 		
 		
 		
-		
 		setSize(500, 500);
 		setVisible(true);
 	}
