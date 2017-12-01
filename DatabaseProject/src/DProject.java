@@ -148,6 +148,7 @@ public class DProject extends JFrame
 		ShowFPan = new Panel();
 		
 		
+		
 		setSize(500, 500);
 		setVisible(true);
 	}
