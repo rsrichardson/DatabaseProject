@@ -10,22 +10,29 @@ import java.sql.Statement;
 public class DProject extends JFrame 
 {	
 	/**
-	 * 
+	 * By Ryan Richardson
+	 * November 19, 2017
+	 * Rochester MI
 	 */
 	private static final long serialVersionUID = 1L;
 	JButton customers, employees, back1, back2, addCust,
 		cont, member, yesMem, noMem, backCus, admin,
 		backEmp, addAirP, backAdmin, goAdmin, conNewAirP,
-		report, ShowFlights, DisFlight, backFReport, backFDisF;
+		report, ShowFlights, DisFlight, backFReport, backFDisF,
+		canConB, backCan, backLisF;
 	Container contents;
 	Panel start, CustPan, EmpPan, NewCustPan, IDPan,
 		memberPan, gratzPan, addAirport, adminPan, addAirPPan,
-		reportPan, ShowFPan, disFlightsPan;
+		reportPan, ShowFPan, disFlightsPan, cancelPan;
 	JLabel Fname, askID, memberLab, gratzLab, askAPID,
-		askLoc, enterFLab, disFlightsLab;
-	JTextField getID, APIDField, locField, flightField;
+		askLoc, enterFLab, disFlightsLab, cancelLab;
+	JTextField getID, APIDField, locField, flightField,
+		canField;
 	JCheckBox inter;
+	JTable disFTab;
 	
+	String[] FColName = {"Flight", "From", "To"};
+	Object[][] fliData = new Object[10][3];
 	int curCusID, APID, airNum;
 	String IDString, memberQ, toParse, locString, sqlQuery,
 		international, disFlightSt;
@@ -46,22 +53,14 @@ public class DProject extends JFrame
 		contents = getContentPane();
 		contents.setLayout(new FlowLayout());
 		
-		customers = new JButton("Costomers");
-		
-		back1 = new JButton("back");
-		back2 = new JButton("Back");
 		addCust = new JButton("New Customer");
-		member = new JButton("Become member");
 		backCus = new JButton("Back");
 		backCus.addActionListener(bh);
 		
-		Fname = new JLabel("First name");
 		
-		CustPan = new Panel();
-		NewCustPan = new Panel();
+		
+		// Panel for customer ID input
 		IDPan = new Panel();
-		memberPan = new Panel();
-		
 		cont = new JButton("Continue");
 		askID = new JLabel("Enter your customer ID");
 		getID = new JTextField();
@@ -71,6 +70,8 @@ public class DProject extends JFrame
 		IDPan.add(cont);
 		cont.addActionListener(bh);
 		
+		//Panel to become a member
+		memberPan = new Panel();
 		yesMem = new JButton("Yes");
 		noMem = new JButton("No");
 		memberLab = new JLabel("Become Member?");
@@ -80,34 +81,45 @@ public class DProject extends JFrame
 		yesMem.addActionListener(bh);
 		noMem.addActionListener(bh);
 		
+		//Panel to display "congratulations" message
 		gratzPan = new Panel();
 		gratzLab = new JLabel("You are now a member congratulations!");
 		gratzPan.add(gratzLab);
 		gratzPan.add(backCus);
 		
+		//Panel to choose costomer/Employee
 		start = new Panel();
 		employees = new JButton("Employees");
+		customers = new JButton("Costomers");
 		start.add(customers);
 		start.add(employees);
 		customers.addActionListener(bh);
 		employees.addActionListener(bh);
 		
+		//Customer Menu
+		CustPan = new Panel();
+		member = new JButton("Become member");
+		back1 = new JButton("back");
 		CustPan.add(back1);
 		CustPan.add(member);
 		member.addActionListener(bh);
 		back1.addActionListener(bh);
 		
+		//Panel for employee menu
 		EmpPan = new Panel();
+		Fname = new JLabel("First name");
+		back2 = new JButton("Back");
 		goAdmin = new JButton("Admin");
 		report = new JButton("Reporting");
 		EmpPan.add(goAdmin);
 		EmpPan.add(report);
 		EmpPan.add(back2);
-		NewCustPan.add(Fname);
+		//NewCustPan.add(Fname);
 		back2.addActionListener(bh);
 		goAdmin.addActionListener(bh);
 		report.addActionListener(bh);
 		
+		//adds start to contents to start gui
 		contents.add(start);
 		
 		adminPan = new Panel();
@@ -118,6 +130,7 @@ public class DProject extends JFrame
 		adminPan.add(addAirP);
 		adminPan.add(backEmp);
 		
+		//panel to create new Airport
 		addAirPPan = new Panel(new GridLayout(2, 2));
 		askAPID = new JLabel("Airport ID");
 		askLoc = new JLabel("Location");
@@ -139,6 +152,7 @@ public class DProject extends JFrame
 		addAirPPan.add(conNewAirP);
 		addAirPPan.add(backAdmin);
 		
+		//Panel for Reporting Menu
 		reportPan = new Panel();
 		ShowFlights = new JButton("Show Flights");
 		backFReport = new JButton("Back");
@@ -147,6 +161,7 @@ public class DProject extends JFrame
 		reportPan.add(ShowFlights);
 		reportPan.add(backFReport);
 		
+		//Panel to show Flights 
 		ShowFPan = new Panel();
 		enterFLab = new JLabel("Enter Airport Number");
 		flightField = new JTextField();
@@ -157,12 +172,13 @@ public class DProject extends JFrame
 		ShowFPan.add(flightField);
 		ShowFPan.add(DisFlight);
 		
-		disFlightsPan = new Panel();
-		disFlightsLab = new JLabel(disFlightSt);
+		//Panel to displays flights
+		//disFlightsPan = new Panel();
+		//disFlightsLab = new JLabel(disFlightSt);
 		backFDisF = new JButton("Back");
-		disFlightsPan.add(disFlightsLab);
-		disFlightsPan.add(backFDisF);
-		
+		backFDisF.addActionListener(bh);
+		//disFlightsPan.add(disFTab);
+		//disFlightsPan.add(backFDisF);
 		
 		
 		setSize(500, 500);
@@ -333,19 +349,23 @@ public class DProject extends JFrame
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				disFlightSt = " Flight, From, To <br>";
+				int i = 0;
 				try {
 					while(set.next())
 					{
-						disFlightSt = disFlightSt + set.getInt(1) + " " + set.getString(2) + " " + set.getString(3) + "<br>";
+						fliData[i][0] = set.getInt(1);
+						fliData[i][1] = set.getString(2);
+						fliData[i][2] = set.getString(3);
+						i++;
 					}
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				//disFlightSt = disFlightSt + "</HTML>"; 
+				disFTab = new JTable(fliData ,FColName);
 				contents.removeAll();
-				contents.add(disFlightsPan);
+				contents.add(disFTab);
+				contents.add(backFDisF);
 				setVisible(false);
 				setVisible(true);
 			}
@@ -367,6 +387,8 @@ public class DProject extends JFrame
 		}
 		
 	}
+	
+
 	
 	public static void main(String[] args) throws ClassNotFoundException, SQLException
 	{	
