@@ -19,7 +19,7 @@ public class DProject extends JFrame
 		cont, member, yesMem, noMem, backCus, admin,
 		backEmp, addAirP, backAdmin, goAdmin, conNewAirP,
 		report, ShowFlights, DisFlight, backFReport, backFDisF,
-		canConB, backCan, backLisF;
+		canConB, backCan, backLisF, canFB;
 	Container contents;
 	Panel start, CustPan, EmpPan, NewCustPan, IDPan,
 		memberPan, gratzPan, addAirport, adminPan, addAirPPan,
@@ -32,10 +32,11 @@ public class DProject extends JFrame
 	JTable disFTab;
 	
 	String[] FColName = {"Flight", "From", "To"};
-	Object[][] fliData = new Object[10][3];
-	int curCusID, APID, airNum;
+	Object[][] fliData = new Object[20][3];
+	int curCusID, APID, airNum, canTickID, numAvl,
+		FLID;
 	String IDString, memberQ, toParse, locString, sqlQuery,
-		international, disFlightSt;
+		international, disFlightSt, sqlQ, classDel;
 	ResultSet set;
 	
 	Connection connection;
@@ -100,9 +101,12 @@ public class DProject extends JFrame
 		CustPan = new Panel();
 		member = new JButton("Become member");
 		back1 = new JButton("back");
-		CustPan.add(back1);
+		canFB = new JButton("Cancel Flight");
 		CustPan.add(member);
+		CustPan.add(canFB);
+		CustPan.add(back1);
 		member.addActionListener(bh);
+		canFB.addActionListener(bh);
 		back1.addActionListener(bh);
 		
 		//Panel for employee menu
@@ -179,6 +183,21 @@ public class DProject extends JFrame
 		backFDisF.addActionListener(bh);
 		//disFlightsPan.add(disFTab);
 		//disFlightsPan.add(backFDisF);
+		
+		//panel to cancel tickets
+		cancelPan = new Panel();
+		cancelLab = new JLabel("Enter Ticket ID");
+		canField = new JTextField();
+		canField.setColumns(10);
+		canConB = new JButton("Cancel");
+		backCan = new JButton("Back");
+		canConB.addActionListener(bh);
+		backCan.addActionListener(bh);
+		cancelPan.add(cancelLab);
+		cancelPan.add(canField);
+		cancelPan.add(canConB);
+		cancelPan.add(backCan);
+		
 		
 		
 		setSize(500, 500);
@@ -383,8 +402,71 @@ public class DProject extends JFrame
 				setVisible(false);
 				setVisible(true);
 			}
-			
+			else if(a.getSource() == canFB)
+			{
+				contents.removeAll();
+				contents.add(cancelPan);
+				setVisible(false);
+				setVisible(true);
+			}
+			else if(a.getSource() == canConB)
+			{
+				toParse = canField.getText();
+				canTickID = Integer.parseInt(toParse);
+				sqlQ = "select class, F_ID From tickets where T_ID = " + canTickID;
+				try {
+					set = statement.executeQuery(sqlQ);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			try {
+				classDel = set.getString(1);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			try {
+				FLID = set.getInt(2);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			if(classDel == "Economy")
+			{
+				sqlQ = "update Flights set Economy_Avl = Economy_Avl + 1 where F_ID = " + FLID;
+			}
+			else if(classDel == "Bussiness")
+			{
+				sqlQ = "update Flights set Bussiness_Avl = Bussiness_Avl + 1 where F_ID = " + FLID;
+			}
+			else if(classDel == "First")
+			{
+				sqlQ = "update Flights set First_Avl = First_Avl + 1 where F_ID = " + FLID;
+			}
+			else
+			{
+				sqlQ = "update Flights set Family_Avl = Family_Avl + 1 where F_ID = " + FLID;
+			}
+			try {
+				statement.execute(sqlQ);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			sqlQ = "delete from tickets where T_ID = " + canTickID;
+			try {
+				statement.execute(sqlQ);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			contents.removeAll();
+			contents.add(CustPan);
+			setVisible(false);
+			setVisible(true);
+			}
 		}
+		
 		
 	}
 	
