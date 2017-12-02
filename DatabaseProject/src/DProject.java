@@ -16,19 +16,19 @@ public class DProject extends JFrame
 	JButton customers, employees, back1, back2, addCust,
 		cont, member, yesMem, noMem, backCus, admin,
 		backEmp, addAirP, backAdmin, goAdmin, conNewAirP,
-		report, ShowFlights;
+		report, ShowFlights, DisFlight, backFReport, backFDisF;
 	Container contents;
 	Panel start, CustPan, EmpPan, NewCustPan, IDPan,
 		memberPan, gratzPan, addAirport, adminPan, addAirPPan,
-		reportPan, ShowFPan;
+		reportPan, ShowFPan, disFlightsPan;
 	JLabel Fname, askID, memberLab, gratzLab, askAPID,
-		askLoc;
-	JTextField getID, APIDField, locField;
+		askLoc, enterFLab, disFlightsLab;
+	JTextField getID, APIDField, locField, flightField;
 	JCheckBox inter;
 	
-	int curCusID, APID;
+	int curCusID, APID, airNum;
 	String IDString, memberQ, toParse, locString, sqlQuery,
-		international;
+		international, disFlightSt;
 	ResultSet set;
 	
 	Connection connection;
@@ -141,11 +141,28 @@ public class DProject extends JFrame
 		
 		reportPan = new Panel();
 		ShowFlights = new JButton("Show Flights");
+		backFReport = new JButton("Back");
+		backFReport.addActionListener(bh);
 		ShowFlights.addActionListener(bh);
 		reportPan.add(ShowFlights);
-		reportPan.add(backEmp);
+		reportPan.add(backFReport);
 		
 		ShowFPan = new Panel();
+		enterFLab = new JLabel("Enter Airport Number");
+		flightField = new JTextField();
+		flightField.setColumns(10);
+		DisFlight = new JButton("Enter");
+		DisFlight.addActionListener(bh);
+		ShowFPan.add(enterFLab);
+		ShowFPan.add(flightField);
+		ShowFPan.add(DisFlight);
+		
+		disFlightsPan = new Panel();
+		disFlightsLab = new JLabel(disFlightSt);
+		backFDisF = new JButton("Back");
+		disFlightsPan.add(disFlightsLab);
+		disFlightsPan.add(backFDisF);
+		
 		
 		
 		setSize(500, 500);
@@ -300,6 +317,49 @@ public class DProject extends JFrame
 			{
 				contents.removeAll();
 				contents.add(ShowFPan);
+				setVisible(false);
+				setVisible(true);
+			}
+			else if(a.getSource() == DisFlight)
+			{
+				toParse = flightField.getText();
+				airNum = Integer.parseInt(toParse);
+				sqlQuery = "select F_ID, F.location As 'From' , T.location As 'TO' "
+						+ "from Flights Join airport As F on From_A = F.AirP_ID Join airport as T on To_A = T.AirP_ID "
+						+ "where from_A = " + airNum;
+				try {
+					set = statement.executeQuery(sqlQuery);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				disFlightSt = " Flight, From, To <br>";
+				try {
+					while(set.next())
+					{
+						disFlightSt = disFlightSt + set.getInt(1) + " " + set.getString(2) + " " + set.getString(3) + "<br>";
+					}
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				//disFlightSt = disFlightSt + "</HTML>"; 
+				contents.removeAll();
+				contents.add(disFlightsPan);
+				setVisible(false);
+				setVisible(true);
+			}
+			else if(a.getSource() == backFReport)
+			{
+				contents.removeAll();
+				contents.add(EmpPan);
+				setVisible(false);
+				setVisible(true);
+			}
+			else if(a.getSource() == backFDisF)
+			{
+				contents.removeAll();
+				contents.add(reportPan);
 				setVisible(false);
 				setVisible(true);
 			}
