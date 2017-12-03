@@ -11,6 +11,7 @@ public class DProject extends JFrame
 {	
 	/**
 	 * By Ryan Richardson
+	 * By Carli Shiner
 	 * November 19, 2017
 	 * Rochester MI
 	 */
@@ -19,28 +20,44 @@ public class DProject extends JFrame
 		cont, member, yesMem, noMem, backCus, admin,
 		backEmp, addAirP, backAdmin, goAdmin, conNewAirP,
 		report, ShowFlights, DisFlight, backFReport, backFDisF,
-		canConB, backCan, backLisF, canFB;
+		canConB, backCan, backLisF, canFB,buttonCustViewTickets,
+		backCustItinerary, confirmUpdateTicketPrice, backUpdateTicketPrice, 
+		buttonUpdateTicket;
 	Container contents;
 	Panel start, CustPan, EmpPan, NewCustPan, IDPan,
 		memberPan, gratzPan, addAirport, adminPan, addAirPPan,
-		reportPan, ShowFPan, disFlightsPan, cancelPan;
+		reportPan, ShowFPan, disFlightsPan, cancelPan,
+		custViewItineraryPan, ticketPricePan;
 	JLabel Fname, askID, memberLab, gratzLab, askAPID,
-		askLoc, enterFLab, disFlightsLab, cancelLab;
+		askLoc, enterFLab, disFlightsLab, cancelLab, priceTIDLabel, 
+		priceLabel;
 	JTextField getID, APIDField, locField, flightField,
-		canField;
+		canField, priceField, priceTicketIDField;
 	JCheckBox inter;
-	JTable disFTab;
+	JTable disFTab, ticketTable;
 	
 	String[] FColName = {"Flight", "From", "To"};
 	Object[][] fliData = new Object[20][3];
 	int curCusID, APID, airNum, canTickID, numAvl,
-		FLID;
+		FLID, priceTicketID;
 	String IDString, memberQ, toParse, locString, sqlQuery,
-		international, disFlightSt, sqlQ, classDel;
+		international, disFlightSt, sqlQ, classDel, parseDouble;
 	ResultSet set;
+	double newTicketPrice;
 	
 	Connection connection;
 	Statement statement;
+	
+	String[] TColName = {"TicketID", "FlightID", "BoardingTime", "Price", "Class", "Cargo"};
+	Object[][] ticketData = new Object[10][6];
+	
+	/////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////
+
+	/////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////
 	
 	public DProject() throws ClassNotFoundException, SQLException
 	{
@@ -98,12 +115,14 @@ public class DProject extends JFrame
 		employees.addActionListener(bh);
 		
 		//Customer Menu
-		CustPan = new Panel();
+		CustPan = new Panel(new GridLayout(2,1));
 		member = new JButton("Become member");
 		back1 = new JButton("back");
 		canFB = new JButton("Cancel Flight");
+		buttonCustViewTickets = new JButton("View Itinerary");
 		CustPan.add(member);
 		CustPan.add(canFB);
+		CustPan.add(buttonCustViewTickets);
 		CustPan.add(back1);
 		member.addActionListener(bh);
 		canFB.addActionListener(bh);
@@ -126,12 +145,16 @@ public class DProject extends JFrame
 		//adds start to contents to start gui
 		contents.add(start);
 		
+		//Admin Panel
 		adminPan = new Panel();
 		backEmp = new JButton("Back");
 		backEmp.addActionListener(bh);
 		addAirP = new JButton("Add AirPort");
 		addAirP.addActionListener(bh);
+		buttonUpdateTicket = new JButton("Update Ticket Price");
+		buttonUpdateTicket.addActionListener(bh);
 		adminPan.add(addAirP);
+		adminPan.add(buttonUpdateTicket);
 		adminPan.add(backEmp);
 		
 		//panel to create new Airport
@@ -199,6 +222,30 @@ public class DProject extends JFrame
 		cancelPan.add(backCan);
 		
 		
+		custViewItineraryPan = new Panel(new GridLayout(2,2));
+		backCustItinerary = new JButton("Go Back");
+		custViewItineraryPan.add(backCustItinerary);
+		buttonCustViewTickets.addActionListener(bh);
+		backCustItinerary.addActionListener(bh);
+
+		ticketPricePan = new Panel();
+		confirmUpdateTicketPrice = new JButton("Confirm");
+		backUpdateTicketPrice = new JButton("back");
+		priceField = new JTextField();
+		priceField.setColumns(10);
+		priceTicketIDField = new JTextField();
+		priceTicketIDField.setColumns(10);
+		priceTIDLabel = new JLabel("TicketID");
+		priceLabel = new JLabel("Price");
+		ticketPricePan.add(priceTIDLabel);
+		ticketPricePan.add(priceTicketIDField);
+		ticketPricePan.add(priceLabel);
+		ticketPricePan.add(priceField);
+		ticketPricePan.add(confirmUpdateTicketPrice);
+		ticketPricePan.add(backUpdateTicketPrice);
+		backUpdateTicketPrice.addActionListener(bh);
+		confirmUpdateTicketPrice.addActionListener(bh);
+
 		
 		setSize(500, 500);
 		setVisible(true);
@@ -465,9 +512,95 @@ public class DProject extends JFrame
 			setVisible(false);
 			setVisible(true);
 			}
+			else if(a.getSource() == backCustItinerary)
+			{
+				contents.removeAll();
+				contents.add(CustPan);
+				setVisible(false);
+				setVisible(true);
+			}
+			else if(a.getSource() == buttonCustViewTickets)
+			{
+				sqlQuery = "select T_ID, F_ID, Price, BoardingTime, Class, Cargo from Tickets where C_ID = " + curCusID;
+				
+				ticketData [0][0]= "TicketID";
+				ticketData [0][1]= "FlightID";
+				ticketData [0][2]= "Price";
+				ticketData [0][3]= "BoardingTime";
+				ticketData [0][4]= "ClassID";
+				ticketData [0][5]= "Cargo";
+				
+				try {
+					set = statement.executeQuery(sqlQuery);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				int i = 1;
+				try {
+					while(set.next())
+					{
+						ticketData[i][0] = set.getInt(1);
+						ticketData[i][1] = set.getInt(2);
+						ticketData[i][2] = set.getDouble(3);
+						ticketData[i][3] = set.getString(4);
+						ticketData[i][4] = set.getString(5);
+						ticketData[i][5] = set.getDouble(6);
+						i++;
+					}
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				ticketTable = new JTable(ticketData ,TColName);
+				contents.removeAll();
+				contents.add(ticketTable);
+				contents.add(backCustItinerary);
+				setVisible(false);
+				setVisible(true);
+			}
+			else if (a.getSource() == confirmUpdateTicketPrice)
+			{
+				parseDouble = priceField.getText();
+				newTicketPrice = Double.parseDouble(parseDouble);
+				
+				toParse= priceTicketIDField.getText();
+				priceTicketID = Integer.parseInt(toParse);
+				
+				sqlQuery = "Update Tickets set price = " + newTicketPrice + "Where T_ID = " + priceTicketID; 
+				try {
+					statement.execute(sqlQuery);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				contents.removeAll();
+				contents.add(adminPan);
+				setVisible(false);
+				setVisible(true);
+			}
+			else if (a.getSource() == backUpdateTicketPrice)
+			{
+				contents.removeAll();
+				contents.add(adminPan);
+				setVisible(false);
+				setVisible(true);
+			}
+			else if (a.getSource() == buttonUpdateTicket)
+			{
+				contents.removeAll();
+				contents.add(ticketPricePan);
+				setVisible(false);
+				setVisible(true);
+			}
+
+			
+
+			
+			
+			
+			
 		}
-		
-		
 	}
 	
 
