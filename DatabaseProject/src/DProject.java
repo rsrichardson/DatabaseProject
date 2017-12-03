@@ -51,13 +51,16 @@ public class DProject extends JFrame
 	String[] TColName = {"TicketID", "FlightID", "BoardingTime", "Price", "Class", "Cargo"};
 	Object[][] ticketData = new Object[10][6];
 	
-	/////////////////////////////////////////////////////////////////////////
-	/////////////////////////////////////////////////////////////////////////
-	/////////////////////////////////////////////////////////////////////////
+	Panel updateEmpPan;
+	JButton confirmUpdateEmp, backUpdateEmp, buttonUpdateEmp;
+	JLabel empIDLabel, empFNameLabel, empLNameLabel, empJobLabel, 
+	empSalaryLabel, empACIDLabel;
+	JTextField empIDField, empFNameField, empLNameField, empJobField, 
+	empSalaryField, empACIDField;
+	
+	int empEID, empSalary, empACID;
+	String empFName, empLName, empJob;
 
-	/////////////////////////////////////////////////////////////////////////
-	/////////////////////////////////////////////////////////////////////////
-	/////////////////////////////////////////////////////////////////////////
 	
 	public DProject() throws ClassNotFoundException, SQLException
 	{
@@ -245,6 +248,60 @@ public class DProject extends JFrame
 		ticketPricePan.add(backUpdateTicketPrice);
 		backUpdateTicketPrice.addActionListener(bh);
 		confirmUpdateTicketPrice.addActionListener(bh);
+
+		//Update Employee
+		updateEmpPan = new Panel(new GridLayout(7, 2));
+		
+		buttonUpdateEmp = new JButton("Update Employees");
+		confirmUpdateEmp = new JButton("Confirm");
+		backUpdateEmp = new JButton("Back");
+		
+		empIDLabel = new JLabel("EmployeeID");
+		empIDField = new JTextField();
+		empIDField.setColumns(10);
+		
+		empFNameLabel = new JLabel("First Name");
+		empFNameField = new JTextField();
+		empFNameField.setColumns(10);
+		
+		empLNameLabel = new JLabel("Last Name");
+		empLNameField = new JTextField();
+		empLNameField.setColumns(10);
+		
+		empJobLabel = new JLabel("Job");
+		empJobField = new JTextField();
+		empJobField.setColumns(10);
+		
+		empSalaryLabel = new JLabel("Salary");
+		empSalaryField = new JTextField();
+		empSalaryField.setColumns(10);
+		
+		empACIDLabel = new JLabel("AircraftID");
+		empACIDField = new JTextField();
+		empACIDField.setColumns(10);
+		
+		
+		updateEmpPan.add(empIDLabel);
+		updateEmpPan.add(empIDField);
+		updateEmpPan.add(empFNameLabel);
+		updateEmpPan.add(empFNameField);
+		updateEmpPan.add(empLNameLabel);
+		updateEmpPan.add(empLNameField);
+		updateEmpPan.add(empJobLabel);
+		updateEmpPan.add(empJobField);
+		updateEmpPan.add(empSalaryLabel);
+		updateEmpPan.add(empSalaryField);
+		updateEmpPan.add(empACIDLabel);
+		updateEmpPan.add(empACIDField);
+		updateEmpPan.add(backUpdateEmp);
+		updateEmpPan.add(confirmUpdateEmp);
+		
+		buttonUpdateEmp.addActionListener(bh);
+		backUpdateEmp.addActionListener(bh);
+		confirmUpdateEmp.addActionListener(bh);
+
+
+		adminPan.add(buttonUpdateEmp);
 
 		
 		setSize(500, 500);
@@ -593,6 +650,49 @@ public class DProject extends JFrame
 				setVisible(false);
 				setVisible(true);
 			}
+			else if (a.getSource() == confirmUpdateEmp)
+			{
+				toParse= empIDField.getText();
+				empEID = Integer.parseInt(toParse);
+				
+				empFName = empFNameField.getText();
+				empLName = empLNameField.getText();
+				empJob = empJobField.getText();
+				
+				toParse= empSalaryField.getText();
+				empSalary = Integer.parseInt(toParse);
+				
+				toParse= empACIDField.getText();
+				empACID = Integer.parseInt(toParse);
+				
+				
+				sqlQuery = "Update Employees set FName = " + empFName + "Where E_ID = " + empEID; 
+				try {
+					statement.execute(sqlQuery);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				contents.removeAll();
+				contents.add(adminPan);
+				setVisible(false);
+				setVisible(true);
+			}
+			else if (a.getSource() == backUpdateEmp)
+			{
+				contents.removeAll();
+				contents.add(adminPan);
+				setVisible(false);
+				setVisible(true);
+			}
+			else if (a.getSource() == buttonUpdateEmp)
+			{
+				contents.removeAll();
+				contents.add(updateEmpPan);
+				setVisible(false);
+				setVisible(true);
+			}
+
 
 			
 
